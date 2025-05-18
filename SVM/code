@@ -1,0 +1,82 @@
+# 📦 Import Libraries
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, classification_report
+
+#Load the Dataset
+df = pd.read_csv("Iris.csv")
+
+# Drop 'Id' column if it exists
+df.drop(columns=["Id"], inplace=True)
+
+# Encode Target Labels
+le = LabelEncoder()
+y = le.fit_transform(df["Species"])  # Converts to 0, 1, 2
+X = df.drop("Species", axis=1)
+
+#  Feature Scaling
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+#  Split Dataset
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.3, random_state=42)
+
+Train SVM Model (Linear Kernel)
+svm = SVC(kernel='rbf')
+svm.fit(X_train, y_train)
+
+#  Predictions & Evaluation
+y_pred = svm.predict(X_test)
+
+print(" SVM Accuracy:", accuracy_score(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred, target_names=le.classes_))
+
+
+
+
+
+
+
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+
+# Simple plot function
+def plot_decision_boundary_simple(clf, model_name):
+    # Create a mesh grid
+    x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+    y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.02),
+                         np.arange(y_min, y_max, 0.02))
+
+    # Predict on mesh grid
+    Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+
+    # Plot
+    plt.figure(figsize=(6, 4))
+    cmap_light = ListedColormap(['#FFCCCC', '#CCFFCC', '#CCCCFF'])
+    cmap_bold = ['red', 'green', 'blue']
+
+    plt.contourf(xx, yy, Z, alpha=0.5, cmap=cmap_light)
+    for i, color in zip(np.unique(y), cmap_bold):
+        plt.scatter(X[y == i, 0], X[y == i, 1], c=color, label=le.classes_[i], edgecolor='k', s=30)
+
+    plt.xlabel("Petal Length (standardized)")
+    plt.ylabel("Petal Width (standardized)")
+    plt.title(f"{model_name} Decision Boundary")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+# Plot SVM
+plot_decision_boundary_simple(svm, "SVM")
+
+# Plot KNN
+plot_decision_boundary_simple(knn, "KNN")
+
