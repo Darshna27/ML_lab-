@@ -1,0 +1,83 @@
+import pandas as pd
+# Load the dataset directly from the URL
+url = "https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv"
+df = pd.read_csv(url, sep=';')  # Use ';' as separator
+# Preview the data
+print(df.head())
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Load the dataset
+url = "https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv"
+df = pd.read_csv(url, sep=';')  # Note: separator is a semicolon
+
+# Check basic info
+print("📄 Dataset shape:", df.shape)
+print(df.head())
+
+# Convert the quality score to categories (optional: 3 levels for better balance)
+# You can change this logic based on how granular you want the classification
+def quality_label(q):
+    if q <= 5:
+        return "Low"
+    elif q == 6:
+        return "Medium"
+    else:
+        return "High"
+
+df['Quality_Label'] = df['quality'].apply(quality_label)
+
+# Separate features and target
+X = df.drop(columns=['quality', 'Quality_Label'])
+y = df['Quality_Label']
+
+# Encode the target labels
+le = LabelEncoder()
+y_encoded = le.fit_transform(y)
+
+# Split into training and test sets
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y_encoded, test_size=0.2, random_state=42, stratify=y_encoded
+)
+
+# Train the Random Forest classifier
+rf_model = RandomForestClassifier(n_estimators=100, max_depth=None, random_state=42)
+rf_model.fit(X_train, y_train)
+
+# Predict on test data
+y_pred = rf_model.predict(X_test)
+
+# Evaluate the model
+print("✅ Accuracy:", accuracy_score(y_test, y_pred))
+print("\n📊 Classification Report:\n")
+print(classification_report(y_test, y_pred, target_names=le.classes_))
+
+# Plot the confusion matrix
+conf_matrix = confusion_matrix(y_test, y_pred)
+plt.figure(figsize=(8, 6))
+sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues',
+            xticklabels=le.classes_, yticklabels=le.classes_)
+plt.title("Confusion Matrix")
+plt.xlabel("Predicted Label")
+plt.ylabel("True Label")
+plt.tight_layout()
+plt.show()
+
+# Plot top 10 feature importances
+importances = rf_model.feature_importances_
+features = X.columns
+indices = importances.argsort()[::-1][:10]  # Top 10
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=importances[indices], y=features[indices], palette="viridis")
+plt.title("Top 10 Feature Importances")
+plt.xlabel("Importance")
+plt.ylabel("Feature")
+plt.tight_layout()
+plt.show()
