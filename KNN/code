@@ -1,0 +1,80 @@
+import matplotlib.pyplot as plt
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+
+# Try different values of k
+k_range = range(1, 21)
+accuracies = []
+error_rates = []
+
+for k in k_range:
+    knn = KNeighborsClassifier(n_neighbors=k)
+    knn.fit(X_train, y_train)
+    y_pred_k = knn.predict(X_test)
+
+    acc = accuracy_score(y_test, y_pred_k)
+    accuracies.append(acc)
+    error_rates.append(1 - acc)  # Error = 1 - Accuracy
+
+# Plot Accuracy
+plt.figure(figsize=(10, 4))
+
+plt.subplot(1, 2, 1)
+plt.plot(k_range, accuracies, color='green', marker='o')
+plt.title('🔍 Accuracy vs. K')
+plt.xlabel('K Value')
+plt.ylabel('Accuracy')
+plt.xticks(k_range)
+
+# Plot Error Rate
+plt.subplot(1, 2, 2)
+plt.plot(k_range, error_rates, color='red', marker='x')
+plt.title('⚠️ Error Rate vs. K')
+plt.xlabel('K Value')
+plt.ylabel('Error Rate')
+plt.xticks(k_range)
+
+plt.tight_layout()
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, classification_report
+
+# Load the dataset
+df = pd.read_csv("Iris.csv")
+
+# Drop ID column if present
+df.drop(columns=["Id"], inplace=True)
+
+# Split features and labels
+X = df.drop("Species", axis=1)
+y = df["Species"]
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# KNN Classifier
+knn = KNeighborsClassifier(n_neighbors=3)
+knn.fit(X_train, y_train)
+
+# Predictions
+y_pred_knn = knn.predict(X_test)
+
+# Evaluation
+print("🔹 KNN Accuracy:", accuracy_score(y_test, y_pred_knn))
+print("🔹 Classification Report:\n", classification_report(y_test, y_pred_knn))
