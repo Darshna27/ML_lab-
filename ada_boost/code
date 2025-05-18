@@ -1,0 +1,75 @@
+from google.colab import files
+uploaded = files.upload()
+
+
+import zipfile
+import os
+# Use the uploaded filename (replace if different)
+zip_path = "hmboost.zip"
+extract_path = "/content/hmboost"
+# Extract
+with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+    zip_ref.extractall(extract_path)
+# List files
+os.listdir(extract_path)
+
+
+  
+import pandas as pd
+import os
+# List files inside the extracted folder
+extracted_path = "/content/hmboost"
+files = os.listdir(extracted_path)
+print("Extracted files:", files)
+
+
+
+import pandas as pd
+import os
+# Define the path
+extracted_path = "/content/hmboost"
+csv_file = os.path.join(extracted_path, 'train.csv')
+# Load the training data
+df = pd.read_csv(csv_file)
+# Show the first few rows
+df.head()
+
+
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import AdaBoostRegressor
+from sklearn.metrics import mean_squared_error, r2_score
+import numpy as np
+# Drop unnecessary index column
+df = df.drop(columns=['Unnamed: 0'])
+# Separate features and target
+X = df.drop('MEDV', axis=1)
+y = df['MEDV']
+# Split the data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Train AdaBoost Regressor
+model = AdaBoostRegressor(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+# Predict
+y_pred = model.predict(X_test)
+# Evaluation
+print("R² Score:", r2_score(y_test, y_pred))
+print("RMSE:", np.sqrt(mean_squared_error(y_test, y_pred)))
+
+
+import matplotlib.pyplot as plt
+plt.figure(figsize=(8,6))
+plt.scatter(y_test, y_pred, alpha=0.7, color='teal')
+plt.plot([y.min(), y.max()], [y.min(), y.max()], 'r--')  # ideal prediction line
+plt.xlabel("Actual MEDV")
+plt.ylabel("Predicted MEDV")
+plt.title("Actual vs Predicted House Prices (AdaBoost)")
+plt.grid(True)
+plt.show()
+
+
+
+
+
+
+
+  
