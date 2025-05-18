@@ -1,0 +1,34 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+
+# Generate dataset
+np.random.seed(42)
+X = np.random.rand(30, 1) * 10  # 30 random values between 0 and 10
+y = 3 * X + 7 + np.random.randn(30, 1) * 2  # y = 3x + 7 + noise
+
+# Train Linear Regression model
+model = LinearRegression()
+model.fit(X, y)
+
+# Predict values
+y_pred = model.predict(X)
+
+# Plot results
+plt.scatter(X, y, color="blue", label="Actual Data")
+plt.plot(X, y_pred, color="red", linewidth=2, label="Regression Line")
+plt.xlabel("X")
+plt.ylabel("y")
+plt.title("Single Variable Linear Regression")
+plt.legend()
+plt.show()
+
+# Print Model Parameters
+print(f"Slope (m): {model.coef_[0][0]}")
+print(f"Intercept (c): {model.intercept_[0]}")
+
+
+
+
+
+
